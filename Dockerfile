@@ -1,17 +1,30 @@
-# Node.js 26 on Alpine Linux
+# Node.js 26 on Alpine Linux — Pterodactyl/Pelican egg compatible
 FROM node:26-alpine
 
 LABEL org.opencontainers.image.title="node26-alpine" \
-      org.opencontainers.image.description="Node.js 26 on Alpine Linux" \
+      org.opencontainers.image.description="Node.js 26 on Alpine Linux, Pterodactyl/Pelican egg compatible" \
       org.opencontainers.image.source="https://github.com/Santainetwork/node26-alpine" \
       org.opencontainers.image.licenses="MIT"
 
-# Git, curl, and tini for PID 1 signal handling
-RUN apk add --no-cache git curl tini
+# Git, curl, bash (egg startup scripts), and tini for PID 1 signal handling
+RUN apk add --no-cache git curl tini bash
 
-# Default to the non-root user provided by the node image
-USER node
-WORKDIR /app
+# Pterodactyl convention: non-root user "container" (uid/gid 1000)
+# with home at /home/container (where Wings mounts server data)
+RUN set -eux; \
+    deluser node; \
+    delgroup node || true; \
+    addgroup -g 1000 container; \
+    adduser -D -u 1000 -G container -h /home/container -s /bin/bash container; \
+    chown -R container:container /home/container
 
+ENV USER=container HOME=/home/container
+USER container
+WORKDIR /home/container
+
+COPY --chown=container:container entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# tini stays as PID 1; the egg's STARTUP env var is executed by entrypoint.sh
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["node"]
+CMD ["/bin/bash", "/entrypoint.sh"]

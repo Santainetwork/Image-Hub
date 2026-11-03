@@ -1,6 +1,6 @@
 # node26-alpine
 
-Image Docker **Node.js 26** berbasis **Alpine Linux**, dipublikasikan publik di GHCR.
+Image Docker **Node.js 26** berbasis **Alpine Linux**, publik di GHCR, dan **kompatibel dengan egg Pterodactyl/Pelican** (mengikuti konvensi [yolks](https://github.com/pterodactyl/yolks)).
 
 ## Pull
 
@@ -10,17 +10,44 @@ docker pull ghcr.io/santainetwork/node26-alpine:26
 
 Tag yang tersedia: `26`, `latest`, dan `sha-<commit>`.
 
-## Run
+## Pemakaian umum
 
 ```bash
 docker run --rm ghcr.io/santainetwork/node26-alpine:26 node --version
+# atau sebagai base image
+FROM ghcr.io/santainetwork/node26-alpine:26
 ```
+
+## Pemakaian di Pterodactyl / Pelican
+
+Isi field **Docker Image** di egg (atau pilih *Custom image*) dengan:
+
+```
+ghcr.io/santainetwork/node26-alpine:26
+```
+
+Image ini mengikuti konvensi yolks Pterodactyl:
+
+- User non-root `container` (uid/gid 1000), home & workdir `/home/container` — tempat Wings memount data server
+- `ENTRYPOINT` tetap `tini` (PID 1), `CMD` menjalankan `/entrypoint.sh` yang mengeksekusi env var **`STARTUP`** dari panel
+- Placeholder panel seperti `{{SERVER_MEMORY}}`, `{{SERVER_PORT}}` otomatis diganti jadi env shell
+- `bash`, `git`, dan `curl` sudah tersedia untuk script startup egg
+
+Contoh startup command di egg:
+
+```
+node /home/container/app.js
+npm start -- --port {{SERVER_PORT}}
+node --max-old-space-size={{SERVER_MEMORY}} /home/container/index.js
+```
+
+> Catatan: beri tanda kutip pada argumen yang mengandung spasi di startup command (mis. `node -e "console.log('hi')"`), karena entrypoint mengeksekusi `STARTUP` via shell — sama seperti image yolks resmi.
 
 ## Isi image
 
 - Base: [`node:26-alpine`](https://hub.docker.com/_/node) (multi-arch: `linux/amd64`, `linux/arm64`)
-- Tambahan: `git`, `curl`, `tini` (sebagai PID 1 agar sinyal seperti `SIGTERM` diteruskan dengan benar)
-- User default non-root: `node`, workdir `/app`
+- Tambahan: `git`, `curl`, `bash`, `tini`
+- User default non-root: `container` (uid/gid 1000), workdir `/home/container`
 
 ## Build ulang
 
