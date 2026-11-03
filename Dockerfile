@@ -1,5 +1,9 @@
 # Node.js 26 on Alpine Linux — Pterodactyl/Pelican egg compatible
+# DEFAULT_USER=container (yolks convention, tag :26)
+# DEFAULT_USER=root (install container variant, tag :26-root)
 FROM node:26-alpine
+
+ARG DEFAULT_USER=container
 
 LABEL org.opencontainers.image.title="node26-alpine" \
       org.opencontainers.image.description="Node.js 26 on Alpine Linux, Pterodactyl/Pelican egg compatible" \
@@ -19,7 +23,7 @@ RUN set -eux; \
     chown -R container:container /home/container
 
 ENV USER=container HOME=/home/container
-USER container
+USER ${DEFAULT_USER}
 WORKDIR /home/container
 
 COPY --chown=container:container entrypoint.sh /entrypoint.sh

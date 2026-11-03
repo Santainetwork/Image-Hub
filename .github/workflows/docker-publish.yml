@@ -55,3 +55,14 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Build and push root variant (install container)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: DEFAULT_USER=root
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:26-root
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

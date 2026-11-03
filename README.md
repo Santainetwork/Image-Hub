@@ -43,6 +43,10 @@ node --max-old-space-size={{SERVER_MEMORY}} /home/container/index.js
 
 > Catatan: beri tanda kutip pada argumen yang mengandung spasi di startup command (mis. `node -e "console.log('hi')"`), karena entrypoint mengeksekusi `STARTUP` via shell — sama seperti image yolks resmi.
 
+## Varian root: `26-root`
+
+Tag `26-root` identik dengan `26`, tetapi default user-nya **root**. Dipakai saat egg menjadikan image ini sebagai **install container** (script install yang menjalankan `apk add` atau `npm install -g` butuh root, contoh: egg Uptime Kuma). Untuk Docker image server runtime, tetap gunakan `26` agar server jalan non-root.
+
 ## Isi image
 
 - Base: [`node:26-alpine`](https://hub.docker.com/_/node) (multi-arch: `linux/amd64`, `linux/arm64`)
