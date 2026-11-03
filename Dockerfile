@@ -29,6 +29,7 @@ WORKDIR /home/container
 COPY --chown=container:container entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# tini stays as PID 1; the egg's STARTUP env var is executed by entrypoint.sh
-ENTRYPOINT ["/sbin/tini", "--"]
+# tini -g signals the whole process group so servers started through
+# /entrypoint.sh (which runs the egg's STARTUP command) stop gracefully
+ENTRYPOINT ["/sbin/tini", "-g", "--"]
 CMD ["/bin/bash", "/entrypoint.sh"]

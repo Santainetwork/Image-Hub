@@ -41,7 +41,7 @@ npm start -- --port {{SERVER_PORT}}
 node --max-old-space-size={{SERVER_MEMORY}} /home/container/index.js
 ```
 
-> Catatan: beri tanda kutip pada argumen yang mengandung spasi di startup command (mis. `node -e "console.log('hi')"`), karena entrypoint mengeksekusi `STARTUP` via shell — sama seperti image yolks resmi.
+> Catatan: startup command dieksekusi via bash, jadi kontrol alur shell seperti `if [[ -d .git ]] && [[ ${AUTO_UPDATE} == "1" ]]; then ...; fi` didukung penuh.
 
 ## Varian root: `26-root`
 
