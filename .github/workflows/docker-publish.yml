@@ -9,7 +9,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }} # santainetwork/node26-alpine
 
 jobs:
   build:
@@ -21,6 +20,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Compute lowercase image name
+        id: image
+        run: echo "name=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -39,7 +42,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}
           tags: |
             type=raw,value=26
             type=raw,value=latest
@@ -63,6 +66,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           build-args: DEFAULT_USER=root
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:26-root
+          tags: ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:26-root
           cache-from: type=gha
           cache-to: type=gha,mode=max
