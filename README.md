@@ -8,7 +8,7 @@ Image Docker **Node.js 26** berbasis **Alpine Linux**, publik di GHCR, dan **kom
 docker pull ghcr.io/santainetwork/node26-alpine:26
 ```
 
-Tag yang tersedia: `26`, `latest`, dan `sha-<commit>`.
+Tag yang tersedia: `26`, `26-root`, `latest`, dan `sha-<commit>`.
 
 ## Pemakaian umum
 
@@ -45,7 +45,7 @@ node --max-old-space-size={{SERVER_MEMORY}} /home/container/index.js
 
 ## Varian root: `26-root`
 
-Tag `26-root` identik dengan `26`, tetapi default user-nya **root**. Dipakai saat egg menjadikan image ini sebagai **install container** (script install yang menjalankan `apk add` atau `npm install -g` butuh root, contoh: egg Uptime Kuma). Untuk Docker image server runtime, tetap gunakan `26` agar server jalan non-root.
+Tag `26-root` identik dengan `26`, tetapi default user-nya **root**. Dipakai saat egg menjadikan image ini sebagai **install container** (script install yang menjalankan `apk add` atau `npm install -g` butuh root, contoh: egg Uptime Kuma). Untuk Docker image server runtime, tetap gunakan `26` agar server jalan non-root — kecuali install container-nya jalan sebagai root dan menyisakan file milik root (mis. `kuma.db`); dalam kasus itu runtime juga harus `26-root`, atau lakukan `chown -R 1000:1000 /home/container` sekali di dalam container.
 
 ## Isi image
 
