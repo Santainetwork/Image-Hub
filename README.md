@@ -1,32 +1,32 @@
-# node26-alpine
+# Image-Hub
 
 Image Docker **Node.js** berbasis **Alpine Linux** untuk **Node 22 (LTS), 24 (LTS), dan 26 (current)**, publik di GHCR, dan **kompatibel dengan egg Pterodactyl/Pelican** (mengikuti konvensi [yolks](https://github.com/pterodactyl/yolks)).
 
 ## Pull
 
 ```bash
-docker pull ghcr.io/santainetwork/node26-alpine:24   # LTS aktif
-docker pull ghcr.io/santainetwork/node26-alpine:22   # LTS maintenance
-docker pull ghcr.io/santainetwork/node26-alpine:26   # current
+docker pull ghcr.io/santainetwork/image-hub:24   # LTS aktif
+docker pull ghcr.io/santainetwork/image-hub:22   # LTS maintenance
+docker pull ghcr.io/santainetwork/image-hub:26   # current
 ```
 
 ## Tag yang tersedia
 
 | Tag | Node | User default | Kegunaan |
 |---|---|---|---|
-| `22` | 22 (LTS) | `container` (uid 1000) | Docker image runtime egg |
-| `24`, `lts` | 24 (LTS aktif) | `container` (uid 1000) | Docker image runtime egg |
-| `26`, `latest`, `sha-<commit>` | 26 (current) | `container` (uid 1000) | Docker image runtime egg |
-| `22-root`, `24-root`, `26-root` | sesuai nomor | `root` | Install container egg |
+| `22`, `node22` | 22 (LTS) | `container` (uid 1000) | Docker image runtime egg |
+| `24`, `node24`, `lts` | 24 (LTS aktif) | `container` (uid 1000) | Docker image runtime egg |
+| `26`, `node26`, `latest`, `sha-<commit>` | 26 (current) | `container` (uid 1000) | Docker image runtime egg |
+| `22-root`, `node22-root`, `24-root`, `node24-root`, `26-root`, `node26-root` | sesuai nomor | `root` | Install container egg |
 
 Semua tag dibangun untuk **`linux/amd64` (x86_64)**.
 
 ## Pemakaian umum
 
 ```bash
-docker run --rm ghcr.io/santainetwork/node26-alpine:24 node --version
+docker run --rm ghcr.io/santainetwork/image-hub:24 node --version
 # atau sebagai base image
-FROM ghcr.io/santainetwork/node26-alpine:22
+FROM ghcr.io/santainetwork/image-hub:22
 ```
 
 > Catatan base image: `RUN` dieksekusi sebagai user `container` (uid 1000), jadi tulis file di `/home/container` — bukan di `/` yang root-owned.
@@ -36,7 +36,7 @@ FROM ghcr.io/santainetwork/node26-alpine:22
 Isi field **Docker Image** di egg (atau pilih *Custom image*) dengan tag versi yang diinginkan, contoh:
 
 ```
-ghcr.io/santainetwork/node26-alpine:24
+ghcr.io/santainetwork/image-hub:24
 ```
 
 Image ini mengikuti konvensi yolks Pterodactyl:
@@ -58,7 +58,7 @@ node --max-old-space-size={{SERVER_MEMORY}} /home/container/index.js
 
 ## Varian root: `<versi>-root`
 
-Tag `<versi>-root` identik dengan `<versi>`, tetapi default user-nya **root**. Dipakai saat egg menjadikan image ini sebagai **install container** (script install yang menjalankan `apk add` atau `npm install -g` butuh root, contoh: egg Uptime Kuma). Untuk Docker image server runtime, tetap gunakan tag non-root — kecuali install container-nya jalan sebagai root dan menyisakan file milik root (mis. `kuma.db`); dalam kasus itu runtime juga harus memakai `<versi>-root`, atau lakukan `chown -R 1000:1000 /home/container` sekali di dalam container.
+Tag `<versi>-root` (atau `node<versi>-root`) identik dengan versi tanpa `-root`, tetapi default user-nya **root**. Dipakai saat egg menjadikan image ini sebagai **install container** (script install yang menjalankan `apk add` atau `npm install -g` butuh root, contoh: egg Uptime Kuma). Untuk Docker image server runtime, tetap gunakan tag non-root — kecuali install container-nya jalan sebagai root dan menyisakan file milik root (mis. `kuma.db`); dalam kasus itu runtime juga harus memakai `<versi>-root`, atau lakukan `chown -R 1000:1000 /home/container` sekali di dalam container.
 
 ## Isi image
 

@@ -10,7 +10,7 @@ ARG DEFAULT_USER=container
 
 LABEL org.opencontainers.image.title="node${NODE_VERSION}-alpine" \
       org.opencontainers.image.description="Node.js ${NODE_VERSION} on Alpine Linux, Pterodactyl/Pelican egg compatible" \
-      org.opencontainers.image.source="https://github.com/Santainetwork/node26-alpine" \
+      org.opencontainers.image.source="https://github.com/Santainetwork/Image-Hub" \
       org.opencontainers.image.licenses="MIT"
 
 # Git, curl, bash (egg startup scripts), and tini for PID 1 signal handling

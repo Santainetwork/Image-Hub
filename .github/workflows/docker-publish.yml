@@ -45,10 +45,11 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}
-          # :<version> for every line; :latest and :sha-<commit> on 26 (current);
-          # :lts on 24 (newest LTS line)
+          # :<version> for every line; :node<version> alias; :latest and :sha-<commit>
+          # on 26 (current); :lts on 24 (newest LTS line)
           tags: |
             type=raw,value=${{ matrix.node }}
+            type=raw,value=node${{ matrix.node }}
             type=raw,value=latest,enable=${{ matrix.node == '26' }}
             type=raw,value=lts,enable=${{ matrix.node == '24' }}
             type=sha,format=short,enable=${{ matrix.node == '26' }}
@@ -74,6 +75,8 @@ jobs:
           build-args: |
             NODE_VERSION=${{ matrix.node }}
             DEFAULT_USER=root
-          tags: ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:${{ matrix.node }}-root
+          tags: |
+            ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:${{ matrix.node }}-root
+            ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:node${{ matrix.node }}-root
           cache-from: type=gha,scope=node-${{ matrix.node }}-root
           cache-to: type=gha,mode=max,scope=node-${{ matrix.node }}-root
