@@ -19,7 +19,7 @@ docker pull ghcr.io/santainetwork/node26-alpine:26   # current
 | `26`, `latest`, `sha-<commit>` | 26 (current) | `container` (uid 1000) | Docker image runtime egg |
 | `22-root`, `24-root`, `26-root` | sesuai nomor | `root` | Install container egg |
 
-Semua tag multi-arch: `linux/amd64` dan `linux/arm64`.
+Semua tag dibangun untuk **`linux/amd64` (x86_64)**.
 
 ## Pemakaian umum
 
@@ -62,7 +62,7 @@ Tag `<versi>-root` identik dengan `<versi>`, tetapi default user-nya **root**. D
 
 ## Isi image
 
-- Base: [`node:22-alpine` / `node:24-alpine` / `node:26-alpine`](https://hub.docker.com/_/node) (multi-arch: `linux/amd64`, `linux/arm64`)
+- Base: [`node:22-alpine` / `node:24-alpine` / `node:26-alpine`](https://hub.docker.com/_/node) (arsitektur `linux/amd64`)
 - Tambahan: `git`, `curl`, `bash`, `tini`
 - User default non-root: `container` (uid/gid 1000), workdir `/home/container`
 
