@@ -1,12 +1,15 @@
-# Node.js 26 on Alpine Linux — Pterodactyl/Pelican egg compatible
-# DEFAULT_USER=container (yolks convention, tag :26)
-# DEFAULT_USER=root (install container variant, tag :26-root)
-FROM node:26-alpine
+# Node.js (22 LTS / 24 LTS / 26 current) on Alpine Linux — Pterodactyl/Pelican egg compatible
+# NODE_VERSION=22|24|26 (build-arg, default 26) -> tags :22, :24, :26
+# DEFAULT_USER=container (yolks convention, tag :<NODE_VERSION>)
+# DEFAULT_USER=root (install container variant, tag :<NODE_VERSION>-root)
+ARG NODE_VERSION=26
+FROM node:${NODE_VERSION}-alpine
 
+ARG NODE_VERSION
 ARG DEFAULT_USER=container
 
-LABEL org.opencontainers.image.title="node26-alpine" \
-      org.opencontainers.image.description="Node.js 26 on Alpine Linux, Pterodactyl/Pelican egg compatible" \
+LABEL org.opencontainers.image.title="node${NODE_VERSION}-alpine" \
+      org.opencontainers.image.description="Node.js ${NODE_VERSION} on Alpine Linux, Pterodactyl/Pelican egg compatible" \
       org.opencontainers.image.source="https://github.com/Santainetwork/node26-alpine" \
       org.opencontainers.image.licenses="MIT"
 

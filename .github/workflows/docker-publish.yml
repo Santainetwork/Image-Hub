@@ -16,6 +16,11 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        # 22 & 24 = LTS lines, 26 = current
+        node: ["22", "24", "26"]
 
     steps:
       - name: Checkout
@@ -43,21 +48,25 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}
+          # :<version> for every line; :latest and :sha-<commit> on 26 (current);
+          # :lts on 24 (newest LTS line)
           tags: |
-            type=raw,value=26
-            type=raw,value=latest
-            type=sha,format=short
+            type=raw,value=${{ matrix.node }}
+            type=raw,value=latest,enable=${{ matrix.node == '26' }}
+            type=raw,value=lts,enable=${{ matrix.node == '24' }}
+            type=sha,format=short,enable=${{ matrix.node == '26' }}
 
-      - name: Build and push
+      - name: Build and push (container user)
         uses: docker/build-push-action@v6
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
+          build-args: NODE_VERSION=${{ matrix.node }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=node-${{ matrix.node }}
+          cache-to: type=gha,mode=max,scope=node-${{ matrix.node }}
 
       - name: Build and push root variant (install container)
         uses: docker/build-push-action@v6
@@ -65,7 +74,9 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          build-args: DEFAULT_USER=root
-          tags: ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:26-root
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_VERSION=${{ matrix.node }}
+            DEFAULT_USER=root
+          tags: ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:${{ matrix.node }}-root
+          cache-from: type=gha,scope=node-${{ matrix.node }}-root
+          cache-to: type=gha,mode=max,scope=node-${{ matrix.node }}-root
