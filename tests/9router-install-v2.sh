@@ -8,17 +8,25 @@ apk add --no-cache git curl jq file unzip make gcc g++ python3 linux-headers bas
 mkdir -p /mnt/server
 cd /mnt/server
 
+# Reinstall berjalan sebagai root; .git bisa milik uid 1000 dari install sebelumnya
+# (git menolak "dubious ownership"). Daftarkan agar aman.
+git config --global --add safe.directory /mnt/server 2>/dev/null || true
+
 if [ "${USER_UPLOAD}" = "true" ] || [ "${USER_UPLOAD}" = "1" ]; then
     echo "User upload mode: skipping git clone."
+elif [ -d .git ]; then
+    echo ".git exists, updating repo..."
+    git fetch --all
+    git reset --hard origin/${BRANCH}
+elif [ -z "$(ls -A .)" ]; then
+    echo "Cloning 9Router repository (${BRANCH})..."
+    git clone --single-branch --branch ${BRANCH} ${GIT_ADDRESS} .
 else
-    if [ -d .git ]; then
-        echo ".git exists, updating repo..."
-        git fetch --all
-        git reset --hard origin/${BRANCH}
-    else
-        echo "Cloning 9Router repository (${BRANCH})..."
-        git clone --single-branch --branch ${BRANCH} ${GIT_ADDRESS} .
-    fi
+    echo "Folder berisi file tapi bukan git repo: sinkronisasi ke upstream (${BRANCH})..."
+    git init -q .
+    git remote add origin ${GIT_ADDRESS} 2>/dev/null || git remote set-url origin ${GIT_ADDRESS}
+    git fetch --depth=1 origin ${BRANCH}
+    git checkout -f -B ${BRANCH} FETCH_HEAD
 fi
 
 mkdir -p /mnt/server/data /mnt/server/data/db
