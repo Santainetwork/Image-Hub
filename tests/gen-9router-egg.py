@@ -208,7 +208,7 @@ egg = {
                            "install/build kalau kurang, lalu start di SERVER_PORT. Placeholder {{...}} didukung. "
                            "Kalau mau pakai runner hasil install script, isi: bash run.sh",
             "env_variable": "STARTUP_CMD",
-            "default_value": "if [[ -d .git && {{AUTO_UPDATE}} == \"1\" ]]; then git pull; fi; if [[ ! -d node_modules/next || {{FORCE_INSTALL}} == \"1\" ]]; then npm install --production=false; fi; if [[ ! -f .next/BUILD_ID || {{AUTO_UPDATE}} == \"1\" ]]; then if [[ {{AUTO_UPDATE}} == \"1\" || {{BUILD_ON_START}} == \"1\" ]]; then npm run build; else echo \"[9router] ERROR: production build (.next/BUILD_ID) tidak ada. Jalankan Reinstall Server sekali (butuh RAM >= 2GB saat build), atau set BUILD_ON_START=1.\"; exit 1; fi; fi; node custom-server.js --port {{SERVER_PORT}}",
+            "default_value": "if [[ -d .git && {{AUTO_UPDATE}} == 1 ]]; then git pull; fi; if [[ ! -d node_modules/next || {{FORCE_INSTALL}} == 1 ]]; then npm install --production=false; fi; if [[ ! -f .next/BUILD_ID || {{AUTO_UPDATE}} == 1 ]]; then if [[ {{AUTO_UPDATE}} == 1 || {{BUILD_ON_START}} == 1 ]]; then npm run build; else echo [9router] ERROR: production build .next/BUILD_ID tidak ada. Jalankan Reinstall Server dengan RAM 2GB atau set BUILD_ON_START=1; exit 1; fi; fi; node custom-server.js --port {{SERVER_PORT}}",
             "user_viewable": True,
             "user_editable": True,
             "rules": "required|string",
