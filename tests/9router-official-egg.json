@@ -1,0 +1,44 @@
+{
+  "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2026-11-04T21:33:00+07:00",
+  "name": "9Router (Official Image)",
+  "author": "arcelo@santainetwork.my.id",
+  "description": "9Router memakai image resmi decolua/9router sebagai base (ghcr.io/decolua/9router), dengan layer tipis agar kompatibel egg Pterodactyl/Pelican (STARTUP, tini, user container). App + .next + node_modules sudah dibaked di image: start instan, tanpa build, tanpa npm install. Port selalu mengikuti SERVER_PORT.",
+  "features": [],
+  "tags": [],
+  "docker_images": {
+    "9router": "ghcr.io/santainetwork/image-hub:9router",
+    "9router_root": "ghcr.io/santainetwork/image-hub:9router-root"
+  },
+  "file_denylist": [],
+  "startup": "PORT={{SERVER_PORT}} GATEWAY_PORT={{SERVER_PORT}} node /app/custom-server.js --port {{SERVER_PORT}}",
+  "config": {
+    "files": "{\n  \".env\": {\n    \"parser\": \"properties\",\n    \"find\": {\n      \"INITIAL_PASSWORD\": \"{{INITIAL_PASSWORD}}\",\n      \"DATA_DIR\": \"/home/container/data\"\n    }\n  }\n}",
+    "startup": "{\n  \"done\": \"Ready in\",\n  \"userInteraction\": []\n}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/sh\n# 9Router (image berbasis resmi) - app sudah dibaked di /app\nset -e\n\nmkdir -p /mnt/server/data\ncd /mnt/server\n\nif [ ! -f .env ]; then\n    cat > .env <<EOF\nINITIAL_PASSWORD=${INITIAL_PASSWORD}\nDATA_DIR=/home/container/data\nEOF\nfi\n\nchown -R 1000:1000 /mnt/server\n\necho \"9Router installation completed successfully.\"\nexit 0",
+      "container": "ghcr.io/santainetwork/image-hub:9router-root",
+      "entrypoint": "sh"
+    }
+  },
+  "variables": [
+    {
+      "name": "Initial Password",
+      "description": "Password awal dashboard. Ganti setelah login pertama.",
+      "env_variable": "INITIAL_PASSWORD",
+      "default_value": "123456",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string",
+      "field_type": "text"
+    }
+  ]
+}
