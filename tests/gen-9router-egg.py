@@ -51,12 +51,12 @@ if [[ -d .git ]] && [[ "${AUTO_UPDATE}" == "1" ]]; then
   echo "[9router] Checking for updates from git..."
   git pull
 fi
-if [[ ! -d "node_modules" ]] || [[ "${FORCE_INSTALL}" == "1" ]]; then
+if [[ ! -d "node_modules/next" ]] || [[ "${FORCE_INSTALL}" == "1" ]]; then
   echo "[9router] Installing node modules..."
   npm install --production=false
 fi
-if [[ ! -d ".next" ]] || [[ "${AUTO_UPDATE}" == "1" ]]; then
-  echo "[9router] Building Next.js application..."
+if [[ ! -f ".next/BUILD_ID" ]] || [[ "${AUTO_UPDATE}" == "1" ]]; then
+  echo "[9router] Building Next.js application (bisa 2-4 menit)..."
   npm run build
 fi
 
@@ -193,11 +193,11 @@ egg = {
         },
         {
             "name": "Startup Command",
-            "description": "Perintah startup. Default: bash run.sh (runner yang dibuat install script; "
-                           "sudah handle port, auto-update, force-install). Jangan taruh ${SERVER_PORT} "
-                           "di sini - gunakan PORT otomatis dari run.sh, atau startup field egg.",
+            "description": "Perintah startup. Default self-healing: cek node_modules/next dan .next/BUILD_ID, "
+                           "install/build kalau kurang, lalu start di SERVER_PORT. Placeholder {{...}} didukung. "
+                           "Kalau mau pakai runner hasil install script, isi: bash run.sh",
             "env_variable": "STARTUP_CMD",
-            "default_value": "bash run.sh",
+            "default_value": "if [[ -d .git && {{AUTO_UPDATE}} == \"1\" ]]; then git pull; fi; if [[ ! -d node_modules/next || {{FORCE_INSTALL}} == \"1\" ]]; then npm install --production=false; fi; if [[ ! -f .next/BUILD_ID || {{AUTO_UPDATE}} == \"1\" ]]; then npm run build; fi; node custom-server.js --port {{SERVER_PORT}}",
             "user_viewable": True,
             "user_editable": True,
             "rules": "required|string",

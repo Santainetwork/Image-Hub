@@ -47,12 +47,12 @@ if [[ -d .git ]] && [[ "${AUTO_UPDATE}" == "1" ]]; then
   echo "[9router] Checking for updates from git..."
   git pull
 fi
-if [[ ! -d "node_modules" ]] || [[ "${FORCE_INSTALL}" == "1" ]]; then
+if [[ ! -d "node_modules/next" ]] || [[ "${FORCE_INSTALL}" == "1" ]]; then
   echo "[9router] Installing node modules..."
   npm install --production=false
 fi
-if [[ ! -d ".next" ]] || [[ "${AUTO_UPDATE}" == "1" ]]; then
-  echo "[9router] Building Next.js application..."
+if [[ ! -f ".next/BUILD_ID" ]] || [[ "${AUTO_UPDATE}" == "1" ]]; then
+  echo "[9router] Building Next.js application (bisa 2-4 menit)..."
   npm run build
 fi
 
