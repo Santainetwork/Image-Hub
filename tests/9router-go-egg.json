@@ -1,0 +1,78 @@
+{
+  "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2026-11-04T20:36:00+07:00",
+  "name": "9Router-Go",
+  "author": "arcelo@santainetwork.my.id",
+  "description": "9Router-Go (komunitas: luqman-v1/9router-go) - AI proxy gateway single binary Go + dashboard Svelte embedded. Tanpa build saat start (beda dengan versi Next.js), RAM kecil, cocok untuk server memory terbatas. Kompatibel database dengan 9Router (Node) bila DATA_DIR yang sama dipakai.",
+  "features": [],
+  "tags": [],
+  "docker_images": {
+    "nodejs22": "ghcr.io/santainetwork/image-hub:node22",
+    "nodejs24": "ghcr.io/santainetwork/image-hub:node24",
+    "nodejs26": "ghcr.io/santainetwork/image-hub:node26",
+    "nodejs22_root": "ghcr.io/santainetwork/image-hub:node22-root",
+    "nodejs24_root": "ghcr.io/santainetwork/image-hub:node24-root",
+    "nodejs26_root": "ghcr.io/santainetwork/image-hub:node26-root"
+  },
+  "file_denylist": [],
+  "startup": "{{STARTUP_CMD}}",
+  "config": {
+    "files": "{\n  \".env\": {\n    \"parser\": \"properties\",\n    \"find\": {\n      \"PORT\": \"{{SERVER_PORT}}\",\n      \"DATA_DIR\": \"./data\",\n      \"INITIAL_PASSWORD\": \"{{INITIAL_PASSWORD}}\"\n    }\n  }\n}",
+    "startup": "{\n  \"done\": \"Server is ready to handle requests\",\n  \"userInteraction\": []\n}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/sh\n# 9router-go Installation Script (single Go binary, image-hub)\nset -e\n\nmkdir -p /mnt/server\ncd /mnt/server\n\nif [ \"${RELEASE_TAG}\" = \"latest\" ] || [ -z \"${RELEASE_TAG}\" ]; then\n    URL=\"https://github.com/${GITHUB_REPO}/releases/latest/download/9router-go-linux-amd64\"\nelse\n    URL=\"https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_TAG}/9router-go-linux-amd64\"\nfi\n\necho \"Downloading 9router-go (${RELEASE_TAG}) from ${URL}...\"\ncurl -fsSL -o 9router-go.tmp \"$URL\"\nchmod +x 9router-go.tmp\nmv 9router-go.tmp 9router-go\n./9router-go --help >/dev/null 2>&1 || { echo \"Binary tidak bisa dieksekusi\"; exit 1; }\n\nmkdir -p data\n\nif [ ! -f .env ]; then\n    JWT=$(head -c 32 /dev/urandom | base64 | tr -d '=+/\\n' | cut -c1-43)\n    cat > .env <<EOF\nJWT_SECRET=${JWT}\nINITIAL_PASSWORD=${INITIAL_PASSWORD}\nDATA_DIR=./data\nPORT=20130\nEOF\nfi\n\n# Konsisten dengan runtime non-root (konvensi yolks)\nchown -R 1000:1000 /mnt/server\n\necho \"9router-go installation completed successfully.\"\nexit 0",
+      "container": "ghcr.io/santainetwork/image-hub:node22-root",
+      "entrypoint": "sh"
+    }
+  },
+  "variables": [
+    {
+      "name": "GitHub Repository",
+      "description": "Repo sumber binary 9router-go (default: komunitas luqman-v1/9router-go).",
+      "env_variable": "GITHUB_REPO",
+      "default_value": "luqman-v1/9router-go",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string",
+      "field_type": "text"
+    },
+    {
+      "name": "Release Tag",
+      "description": "Tag release binary: 'latest' atau tag spesifik (mis. v1.9.16-exp.2).",
+      "env_variable": "RELEASE_TAG",
+      "default_value": "latest",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string",
+      "field_type": "text"
+    },
+    {
+      "name": "Initial Password",
+      "description": "Password awal dashboard. Ganti setelah login pertama.",
+      "env_variable": "INITIAL_PASSWORD",
+      "default_value": "123456",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string",
+      "field_type": "text"
+    },
+    {
+      "name": "Startup Command",
+      "description": "Startup default: './9router-go < /dev/null' (redirect stdin wajib — tanpa itu binary membuka menu interaktif di TTY panel dan menggantung). Variasi auto-update: './9router-go --auto-update < /dev/null'.",
+      "env_variable": "STARTUP_CMD",
+      "default_value": "./9router-go < /dev/null",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string",
+      "field_type": "text"
+    }
+  ]
+}

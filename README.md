@@ -63,7 +63,7 @@ Tag `<versi>-root` (atau `node<versi>-root`) identik dengan versi tanpa `-root`,
 ## Isi image
 
 - Base: [`node:22-alpine` / `node:24-alpine` / `node:26-alpine`](https://hub.docker.com/_/node) (arsitektur `linux/amd64`)
-- Tambahan: `git`, `curl`, `bash`, `tini`
+- Tambahan: `git`, `curl`, `bash`, `tini`, `gcompat` + `libc6-compat` (agar binary rilis glibc-linked, mis. Go/Rust, bisa jalan di musl)
 - User default non-root: `container` (uid/gid 1000), workdir `/home/container`
 
 ## Build ulang

@@ -13,8 +13,10 @@ LABEL org.opencontainers.image.title="node${NODE_VERSION}-alpine" \
       org.opencontainers.image.source="https://github.com/Santainetwork/Image-Hub" \
       org.opencontainers.image.licenses="MIT"
 
-# Git, curl, bash (egg startup scripts), and tini for PID 1 signal handling
-RUN apk add --no-cache git curl tini bash
+# Git, curl, bash (egg startup scripts), tini for PID 1 signal handling, and
+# glibc compatibility (gcompat + libc6-compat) so glibc-linked single binaries
+# (Go/Rust releases) can run on musl
+RUN apk add --no-cache git curl tini bash gcompat libc6-compat
 
 # Pterodactyl convention: non-root user "container" (uid/gid 1000)
 # with home at /home/container (where Wings mounts server data)
