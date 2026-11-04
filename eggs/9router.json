@@ -1,0 +1,108 @@
+{
+  "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2026-11-04T19:32:00+07:00",
+  "name": "9Router",
+  "author": "arcelo@santainetwork.my.id",
+  "description": "9Router (upstream decolua/9router) - AI proxy gateway dengan dashboard Next.js. Startup memakai run.sh yang di-generate install script; port selalu mengikuti SERVER_PORT.",
+  "features": [],
+  "tags": [],
+  "docker_images": {
+    "nodejs22": "ghcr.io/santainetwork/image-hub:node22",
+    "nodejs24": "ghcr.io/santainetwork/image-hub:node24",
+    "nodejs26": "ghcr.io/santainetwork/image-hub:node26",
+    "nodejs22_root": "ghcr.io/santainetwork/image-hub:node22-root",
+    "nodejs24_root": "ghcr.io/santainetwork/image-hub:node24-root",
+    "nodejs26_root": "ghcr.io/santainetwork/image-hub:node26-root"
+  },
+  "file_denylist": [],
+  "startup": "{{STARTUP_CMD}}",
+  "config": {
+    "files": "{\n  \".env\": {\n    \"parser\": \"properties\",\n    \"find\": {\n      \"PORT\": \"{{SERVER_PORT}}\",\n      \"GATEWAY_PORT\": \"{{SERVER_PORT}}\",\n      \"DATA_DIR\": \"./data\",\n      \"INITIAL_PASSWORD\": \"{{INITIAL_PASSWORD}}\"\n    }\n  }\n}",
+    "startup": "{\n  \"done\": \"Ready in\",\n  \"userInteraction\": []\n}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/sh\n# 9Router Installation Script for Pterodactyl / Pelican (image-hub)\nset -e\n\napk update\napk add --no-cache git curl jq file unzip make gcc g++ python3 linux-headers bash\n\nmkdir -p /mnt/server\ncd /mnt/server\n\nif [ \"${USER_UPLOAD}\" = \"true\" ] || [ \"${USER_UPLOAD}\" = \"1\" ]; then\n    echo \"User upload mode: skipping git clone.\"\nelse\n    if [ -d .git ]; then\n        echo \".git exists, updating repo...\"\n        git fetch --all\n        git reset --hard origin/${BRANCH}\n    else\n        echo \"Cloning 9Router repository (${BRANCH})...\"\n        git clone --single-branch --branch ${BRANCH} ${GIT_ADDRESS} .\n    fi\nfi\n\nmkdir -p /mnt/server/data /mnt/server/data/db\n\necho \"Installing npm dependencies...\"\nnpm install\n\necho \"Building Next.js production build...\"\nnpm run build\n\necho \"Generating startup runner script (run.sh)...\"\ncat << 'EOF' > /mnt/server/run.sh\n#!/bin/bash\nset -e\ncd /home/container\n\nif [[ -d .git ]] && [[ \"${AUTO_UPDATE}\" == \"1\" ]]; then\n  echo \"[9router] Checking for updates from git...\"\n  git pull\nfi\nif [[ ! -d \"node_modules\" ]] || [[ \"${FORCE_INSTALL}\" == \"1\" ]]; then\n  echo \"[9router] Installing node modules...\"\n  npm install --production=false\nfi\nif [[ ! -d \".next\" ]] || [[ \"${AUTO_UPDATE}\" == \"1\" ]]; then\n  echo \"[9router] Building Next.js application...\"\n  npm run build\nfi\n\nexport PORT=\"${SERVER_PORT:-20128}\"\nexport GATEWAY_PORT=\"${SERVER_PORT:-20128}\"\nexport DATA_DIR=\"${DATA_DIR:-./data}\"\nexport NODE_ENV=production\n\necho \"[9router] Starting on port ${PORT}...\"\nexec node custom-server.js --port \"${PORT}\"\nEOF\n\nchmod +x /mnt/server/run.sh\n\nif [ ! -f /mnt/server/.env ]; then\n    cat << 'EOF' > /mnt/server/.env\nPORT=20128\nGATEWAY_PORT=20128\nDATA_DIR=./data\nNODE_ENV=production\nINITIAL_PASSWORD=123456\nEOF\nfi\n\n# Samakan ownership ke user container (uid 1000) supaya runtime non-root bisa baca/tulis\nchown -R 1000:1000 /mnt/server\n\necho \"9Router installation completed successfully.\"\nexit 0",
+      "container": "ghcr.io/santainetwork/image-hub:node22-root",
+      "entrypoint": "sh"
+    }
+  },
+  "variables": [
+    {
+      "name": "Git Repository Address",
+      "description": "Repository 9Router (upstream: decolua/9router).",
+      "env_variable": "GIT_ADDRESS",
+      "default_value": "https://github.com/decolua/9router.git",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string",
+      "field_type": "text"
+    },
+    {
+      "name": "Git Branch",
+      "description": "Branch yang di-checkout saat install.",
+      "env_variable": "BRANCH",
+      "default_value": "master",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:40",
+      "field_type": "text"
+    },
+    {
+      "name": "Auto Update",
+      "description": "1 = git pull + rebuild saat container start (lebih lambat start).",
+      "env_variable": "AUTO_UPDATE",
+      "default_value": "0",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|boolean",
+      "field_type": "text"
+    },
+    {
+      "name": "Force Install",
+      "description": "1 = jalankan ulang npm install saat container start.",
+      "env_variable": "FORCE_INSTALL",
+      "default_value": "0",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|boolean",
+      "field_type": "text"
+    },
+    {
+      "name": "Initial Password",
+      "description": "Password awal dashboard (ganti setelah login pertama).",
+      "env_variable": "INITIAL_PASSWORD",
+      "default_value": "123456",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string",
+      "field_type": "text"
+    },
+    {
+      "name": "User Uploaded Files",
+      "description": "1 = lewati git clone (pakai file yang kamu upload manual via SFTP).",
+      "env_variable": "USER_UPLOAD",
+      "default_value": "0",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|boolean",
+      "field_type": "text"
+    },
+    {
+      "name": "Startup Command",
+      "description": "Perintah startup. Default: bash run.sh (runner yang dibuat install script; sudah handle port, auto-update, force-install). Jangan taruh ${SERVER_PORT} di sini - gunakan PORT otomatis dari run.sh, atau startup field egg.",
+      "env_variable": "STARTUP_CMD",
+      "default_value": "bash run.sh",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string",
+      "field_type": "text"
+    }
+  ]
+}
